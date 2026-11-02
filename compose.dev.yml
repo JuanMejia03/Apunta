@@ -1,0 +1,5 @@
+services:
+  backend_apunta:
+    volumes:
+      - ${BACKEND_VOLUME}
+      - ${BACKEND_MODULES_VOLUME}

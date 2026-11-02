@@ -1,0 +1,16 @@
+services:
+  backend_apunta:
+    build:
+      context: ./backend-api
+      target: ${ENVIRONMENT}
+    container_name: backend_apunta
+    env_file:
+      ./backend-api/.env
+    ports:
+      - "8085:8080"
+    networks:
+      - apps_gers_net
+
+networks:
+  apps_gers_net:
+    external: true
