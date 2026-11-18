@@ -3,3 +3,6 @@ services:
     volumes:
       - ${BACKEND_VOLUME}
       - ${BACKEND_MODULES_VOLUME}
+      - ${BACKEND_BUILD_VOLUME}
+      - ${BACKEND_SETTINGS_VOLUME}
+      - ${BACKEND_UPLOADS_VOLUME}
