@@ -1,5 +1,7 @@
 package com.juanm.backendapi.service;
 
+import com.juanm.backendapi.dto.documento.DocumentoSubidoDto;
+import com.juanm.backendapi.dto.documento.SubirDocumentoDto;
 import com.juanm.backendapi.model.Documento;
 import com.juanm.backendapi.model.TipoDocumento;
 import com.juanm.backendapi.model.Usuario;
@@ -27,15 +29,16 @@ public class DocumentoService {
     }
 
     @Transactional
-    public Documento procesarYGuardarDocumento(MultipartFile file, String usuarioId) {
+    public DocumentoSubidoDto procesarYGuardarDocumento(SubirDocumentoDto solicitud) {
+        MultipartFile file = solicitud.file();
+        String usuarioId = solicitud.usuarioId();
         String contentType = file.getContentType();
         if (contentType == null || !contentType.equals("application/pdf")) {
             throw new RuntimeException("Solo se permiten archivos PDF.");
         }
 
-        String rutaGuardada = storageService.guardarArchivo(file, usuarioId);
-
         String textoExtraido = pdfService.extraerTextoDePdf(file);
+        String rutaGuardada = storageService.guardarArchivo(file, usuarioId);
 
         Usuario usuarioMock = new Usuario();
         usuarioMock.setId(usuarioId);
@@ -49,6 +52,8 @@ public class DocumentoService {
         documento.setRutaAlmacenamiento(rutaGuardada);
         documento.setTextoExtraido(textoExtraido);
 
-        return documentoRepository.save(documento);
+        Documento guardado = documentoRepository.save(documento);
+        return new DocumentoSubidoDto(guardado.getId(), usuarioId, guardado.getNombreArchivo(),
+                guardado.getTipo(), guardado.getTamano(), guardado.getFechaSubido());
     }
 }
