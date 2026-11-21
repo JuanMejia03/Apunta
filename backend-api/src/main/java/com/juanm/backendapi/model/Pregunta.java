@@ -42,4 +42,5 @@ public class Pregunta {
     public void setTema(String tema) { this.tema = tema; }
     public String getRetroalimentacion() { return retroalimentacion; }
     public void setRetroalimentacion(String retroalimentacion) { this.retroalimentacion = retroalimentacion; }
+    public List<Opcion> getOpciones() { return opciones; }
 }

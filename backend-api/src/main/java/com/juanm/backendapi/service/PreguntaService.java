@@ -1,5 +1,7 @@
 package com.juanm.backendapi.service;
 
+import com.juanm.backendapi.dto.pregunta.OpcionDto;
+import com.juanm.backendapi.dto.pregunta.PreguntaDto;
 import com.juanm.backendapi.dto.pregunta.PreguntaGeneradaDto;
 import com.juanm.backendapi.dto.pregunta.ResultadoGeneracionDto;
 import com.juanm.backendapi.integration.gemini.GeminiPreguntasClient;
@@ -12,9 +14,11 @@ import jakarta.persistence.EntityManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,6 +38,21 @@ public class PreguntaService {
         this.gemini = gemini;
         this.entityManager = entityManager;
         this.transaccion = new TransactionTemplate(transactionManager);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PreguntaDto> listarPorDocumento(String documentoId, String usuarioId) {
+        if (!documentos.existsByIdAndUsuarioId(documentoId, usuarioId)) {
+            throw documentoNoEncontrado();
+        }
+
+        return preguntas.buscarConOpciones(documentoId, usuarioId).stream()
+                .map(pregunta -> new PreguntaDto(pregunta.getId(), pregunta.getEnunciado(), pregunta.getTema(),
+                        pregunta.getOpciones().stream()
+                                .sorted(Comparator.comparingInt(Opcion::getLiteral).thenComparing(Opcion::getId))
+                                .map(opcion -> new OpcionDto(opcion.getId(), opcion.getLiteral(), opcion.getTexto()))
+                                .toList()))
+                .toList();
     }
 
     public ResultadoGeneracionDto generar(String documentoId, String usuarioId) {

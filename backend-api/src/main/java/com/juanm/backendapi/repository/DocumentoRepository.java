@@ -16,6 +16,8 @@ public interface DocumentoRepository extends JpaRepository<Documento, String> {
 
     Optional<Documento> findByIdAndUsuarioId(String id, String usuarioId);
 
+    boolean existsByIdAndUsuarioId(String id, String usuarioId);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Documento> findForUpdateByIdAndUsuarioId(String id, String usuarioId);
 }
